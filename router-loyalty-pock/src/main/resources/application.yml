@@ -1,0 +1,33 @@
+server:
+  port: ${PORT}
+
+spring:
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: admin
+    password: admin
+    vhosts:
+      origin: shared
+      destiny: loyalty
+
+integrations:
+  rabbitmq:
+    cashback:
+      exchange:
+        cashback-fx: cashback.fx
+        cashback-dx: cashback.dx
+      routing-key:
+        cashback-create: create
+        cashback-update: update
+      queue:
+        cashback-notify: router-loyalty.cashback.notify
+    promocode:
+      exchange:
+        promocode-tx: promocode.tx
+      routing-key:
+        reward: reward
+        discount: discount
+        all: reward.discount
+      queue:
+        promocode-notify: router-loyalty.promocode.notify
