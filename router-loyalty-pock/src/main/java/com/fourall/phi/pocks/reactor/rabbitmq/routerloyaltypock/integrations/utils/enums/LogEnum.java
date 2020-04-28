@@ -1,6 +1,6 @@
 package com.fourall.phi.pocks.reactor.rabbitmq.routerloyaltypock.integrations.utils;
 
-public enum MessageLogEnum {
+public enum LogEnum {
 
     ERROR_BODY_EMPTY("Body cannot be empty"),
     ERROR_VHOST_DESTINY_INVALID("Invalid Virtual-Host-Destiny"),
@@ -12,7 +12,7 @@ public enum MessageLogEnum {
 
     private final String value;
 
-    MessageLogEnum(String value) {
+    LogEnum(String value) {
         this.value = value;
     }
 
