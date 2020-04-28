@@ -1,46 +1,58 @@
 package com.fourall.phi.pocks.reactor.rabbitmq.routerloyaltypock.integrations.utils;
 
+import com.fourall.phi.pocks.reactor.rabbitmq.routerloyaltypock.integrations.utils.components.MessageValidator;
+import com.fourall.phi.pocks.reactor.rabbitmq.routerloyaltypock.integrations.utils.enums.LogEnum;
 import com.fourall.phi.pocks.reactor.rabbitmq.routerloyaltypock.integrations.utils.exception.MessageValidationException;
 import com.rabbitmq.client.Delivery;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Flux;
+import reactor.rabbitmq.AcknowledgableDelivery;
+import reactor.rabbitmq.OutboundMessage;
 import reactor.rabbitmq.Receiver;
 import reactor.rabbitmq.Sender;
 
 @Slf4j
 @RequiredArgsConstructor
-public abstract class AbstractSubscriber {
+public abstract class AbstractConsumer {
 
-    protected final Receiver receiver;
-    protected final Sender sender;
-    protected final MessageValidator messageValidator;
+    private final Receiver receiver;
+    private final Sender sender;
 
-    protected void receiveAndSend(String consumeQueue, String producerExchange, String producerRoutingKey) {
-        receiver.consumeAutoAck(consumeQueue)
-                .doOnError(error -> log.error(MessageLogEnum.ERROR_CONSUMING.getValue(), error.getMessage()))
+    private final MessageValidator messageValidator;
+
+    protected void receiveAndSend(String queue, String exchange, String routingKey) {
+        receiver.consumeManualAck(queue)
                 .subscribe(message -> {
-                    subscribeHandler(message, producerExchange, producerRoutingKey);
+                    log.info(LogEnum.INFO_CONSUMING.getValue(), message.getProperties().getMessageId(), queue);
+                    subscribeHandler(message, exchange, routingKey);
                 });
     }
 
-    protected void subscribeHandler(Delivery message, String producerExchange, String producerRoutingKey) {
+    protected Flux<OutboundMessage> converterToOutboundMessage(Delivery delivery, String exchange, String routingKey) {
+        return Flux.just(new OutboundMessage(exchange, routingKey, delivery.getProperties(), delivery.getBody()));
+    }
+
+    private void subscribeHandler(AcknowledgableDelivery message, String exchange, String routingKey) {
         try {
             messageValidator.validate(message);
-            sender.sendWithPublishConfirms(OutboundMessageFactory.converter(message, producerExchange,
-                    producerRoutingKey))
-                    .subscribe(msgResult -> {
-                        if (msgResult.isAck()) {
-                            log.info(MessageLogEnum.INFO_PRODUCING_ROUTING_KEY.getValue(),
-                                    message.getProperties().getMessageId(), producerExchange, producerRoutingKey);
-                        } else {
-                            log.error(MessageLogEnum.ERROR_PRODUCING.getValue(),
-                                    message.getProperties().getMessageId());
-                            // deadletter
-                        }
-                    });
-
+            send(message, exchange, routingKey);
         } catch (MessageValidationException ex) {
-            // deadletter exchange
+            message.nack(false);
         }
+    }
+
+    private void send(AcknowledgableDelivery message, String exchange, String routingKey) {
+        sender.sendWithPublishConfirms(converterToOutboundMessage(message, exchange, routingKey))
+                .subscribe(result -> {
+                    if (result.isAck()) {
+                        log.info(LogEnum.INFO_PRODUCING.getValue(), message.getProperties().getMessageId(), exchange,
+                                routingKey);
+                        message.ack();
+                    } else {
+                        log.error(LogEnum.ERROR_PRODUCING.getValue(), message.getProperties().getMessageId());
+                        message.nack(false);
+                    }
+                });
     }
 }

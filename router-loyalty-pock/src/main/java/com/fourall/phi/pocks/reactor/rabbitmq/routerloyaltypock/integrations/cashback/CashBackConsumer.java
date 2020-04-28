@@ -1,27 +1,24 @@
 package com.fourall.phi.pocks.reactor.rabbitmq.routerloyaltypock.integrations.cashback;
 
-import com.fourall.phi.pocks.reactor.rabbitmq.routerloyaltypock.integrations.utils.AbstractSubscriber;
-import com.fourall.phi.pocks.reactor.rabbitmq.routerloyaltypock.integrations.utils.MessageValidator;
+import com.fourall.phi.pocks.reactor.rabbitmq.routerloyaltypock.integrations.utils.AbstractConsumer;
+import com.fourall.phi.pocks.reactor.rabbitmq.routerloyaltypock.integrations.utils.components.MessageValidator;
+import com.fourall.phi.pocks.reactor.rabbitmq.routerloyaltypock.integrations.utils.enums.ExchangeEnum;
+import com.fourall.phi.pocks.reactor.rabbitmq.routerloyaltypock.integrations.utils.enums.QueueEnum;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import reactor.rabbitmq.Receiver;
 import reactor.rabbitmq.Sender;
 
 @Component
-public class CashBackConsumer extends AbstractSubscriber implements CommandLineRunner {
-
-    private final CashBackMessagingPropertyComponent cashBackMessagingProperty;
+public class CashBackConsumer extends AbstractConsumer implements CommandLineRunner {
 
     public CashBackConsumer(Receiver receiver, Sender sender,
-                            MessageValidator messageValidator,
-                            CashBackMessagingPropertyComponent cashBackMessagingProperty) {
+                            MessageValidator messageValidator) {
         super(receiver, sender, messageValidator);
-        this.cashBackMessagingProperty = cashBackMessagingProperty;
     }
 
     @Override
     public void run(String... args) {
-        receiveAndSend(cashBackMessagingProperty.getQueueNotify(),
-                cashBackMessagingProperty.getExchangeFanout(), "");
+        receiveAndSend(QueueEnum.CASHBACK.getValue(), ExchangeEnum.CASHBACK_FANOUT.getValue(), "");
     }
 }

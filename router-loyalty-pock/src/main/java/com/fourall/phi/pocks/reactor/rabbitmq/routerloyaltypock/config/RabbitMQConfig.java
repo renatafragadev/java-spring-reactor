@@ -18,7 +18,7 @@ import reactor.rabbitmq.SenderOptions;
 @Configuration
 public class RabbitMQConfig {
 
-    private final RabbitMqPropertyComponent rabbitMQProperty;
+    private final RabbitMQPropertyComponent rabbitMQProperty;
 
     @Bean
     public Receiver receiver() {

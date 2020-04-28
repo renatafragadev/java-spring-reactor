@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class RabbitMqPropertyComponent {
+public class RabbitMQPropertyComponent {
 
     @Value("${spring.rabbitmq.host}")
     private String host;

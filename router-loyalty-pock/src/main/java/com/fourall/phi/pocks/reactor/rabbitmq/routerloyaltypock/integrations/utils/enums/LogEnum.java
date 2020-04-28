@@ -1,4 +1,4 @@
-package com.fourall.phi.pocks.reactor.rabbitmq.routerloyaltypock.integrations.utils;
+package com.fourall.phi.pocks.reactor.rabbitmq.routerloyaltypock.integrations.utils.enums;
 
 public enum LogEnum {
 
@@ -8,7 +8,7 @@ public enum LogEnum {
     ERROR_CONSUMING("Failed to consume message. Reason for the error: {}"),
     ERROR_PRODUCING("Error sending message id - {}"),
     INFO_CONSUMING("Consuming message: id - {}, queue - {}"),
-    INFO_PRODUCING_ROUTING_KEY("Message id - {} sent TO exchange = {} AND routing-key: {}");
+    INFO_PRODUCING("Message id - {} sent TO exchange - {} AND routing-key: {}");
 
     private final String value;
 

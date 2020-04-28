@@ -1,9 +1,9 @@
-package com.fourall.phi.pocks.reactor.rabbitmq.routerloyaltypock.integrations.utils;
+package com.fourall.phi.pocks.reactor.rabbitmq.routerloyaltypock.integrations.utils.components;
 
+import com.fourall.phi.pocks.reactor.rabbitmq.routerloyaltypock.integrations.utils.enums.LogEnum;
 import com.fourall.phi.pocks.reactor.rabbitmq.routerloyaltypock.integrations.utils.exception.MessageValidationException;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Delivery;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -19,13 +19,13 @@ public class MessageValidator {
 
     public void validate(Delivery message) {
         if (Optional.ofNullable(message.getBody()).isEmpty()) {
-            throw new MessageValidationException(MessageLogEnum.ERROR_BODY_EMPTY.getValue());
+            throw new MessageValidationException(LogEnum.ERROR_BODY_EMPTY.getValue());
 
         } else if (Optional.ofNullable(message.getProperties().getMessageId()).isEmpty()) {
-            throw new MessageValidationException(MessageLogEnum.ERROR_MESSAGE_ID_REQUIRED.getValue());
+            throw new MessageValidationException(LogEnum.ERROR_MESSAGE_ID_REQUIRED.getValue());
 
         } else if (isValidHeader(message.getProperties())) {
-            throw new MessageValidationException(MessageLogEnum.ERROR_VHOST_DESTINY_INVALID.getValue());
+            throw new MessageValidationException(LogEnum.ERROR_VHOST_DESTINY_INVALID.getValue());
         }
     }
 
